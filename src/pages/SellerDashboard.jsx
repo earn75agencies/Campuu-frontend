@@ -13,6 +13,7 @@ export default function SellerDashboard() {
     totalEarnings: 0
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -24,33 +25,50 @@ export default function SellerDashboard() {
   });
 
   useEffect(() => {
-    if (!isSeller && !isAdmin) return;
+    console.log('SellerDashboard - user:', user, 'isSeller:', isSeller, 'isAdmin:', isAdmin);
+    if (!isSeller && !isAdmin) {
+      console.log('User is not seller or admin, skipping dashboard load');
+      return;
+    }
     fetchDashboardData();
-  }, [isSeller, isAdmin]);
+  }, [isSeller, isAdmin, user]);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError('');
 
+      console.log('Fetching products...');
       // Fetch products
       const productsResponse = await api.get('/products');
       const productsData = productsResponse.data.products || productsResponse.data;
-      setProducts(productsData);
+      console.log('Products data:', productsData);
 
+      // Filter to only show seller's products
+      const sellerProducts = productsData.filter(
+        product => product.sellerId?._id === user?._id || product.sellerId === user?._id
+      );
+      console.log('Seller products:', sellerProducts);
+      setProducts(sellerProducts);
+
+      console.log('Fetching orders...');
       // Fetch orders
       const ordersResponse = await api.get('/orders/my-orders');
+      console.log('Orders data:', ordersResponse.data);
       setOrders(ordersResponse.data);
 
       // Calculate stats
-      const totalProducts = productsData.length;
-      const totalOrders = orders.length;
-      const totalEarnings = orders.reduce((sum, order) => {
+      const totalProducts = sellerProducts.length;
+      const totalOrders = ordersResponse.data.length;
+      const totalEarnings = ordersResponse.data.reduce((sum, order) => {
         return sum + order.totalAmount;
       }, 0);
 
+      console.log('Stats:', { totalProducts, totalOrders, totalEarnings });
       setStats({ totalProducts, totalOrders, totalEarnings });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setError('Failed to load dashboard data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -93,11 +111,34 @@ export default function SellerDashboard() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-4">
+            {error}
+          </div>
+          <button
+            onClick={fetchDashboardData}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Seller Dashboard</h1>
+            <p className="text-gray-600 text-sm mt-1">
+              Welcome back, {user?.name} ({user?.role})
+            </p>
+          </div>
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
