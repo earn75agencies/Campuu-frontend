@@ -152,7 +152,7 @@ export default function Checkout() {
             <h2 className="text-xl font-semibold text-gray-900">Order Summary</h2>
             <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
               {cartItems.map((item) => (
-                <div key={item.productId} className="flex justify-between">
+                <div key={item._id || item.productId} className="flex justify-between">
                   <div className="flex items-center space-x-4">
                     {item.images && item.images[0] && (
                       <img

@@ -39,10 +39,10 @@ export default function AdminDashboard() {
       setOrders(ordersResponse.data);
 
       // Calculate stats
-      const totalUsers = usersResponse.data.length;
+      const totalUsers = users.length;
       const totalProducts = productsData.length;
-      const totalOrders = ordersResponse.data.length;
-      const totalRevenue = ordersResponse.data
+      const totalOrders = orders.length;
+      const totalRevenue = orders
         .filter(order => order.paymentStatus === 'paid')
         .reduce((sum, order) => sum + order.totalAmount, 0);
 

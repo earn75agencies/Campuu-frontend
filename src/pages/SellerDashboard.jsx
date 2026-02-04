@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function SellerDashboard() {
-  const { user, isAdmin } = useAuth();
+  const { user, isSeller, isAdmin } = useAuth();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState({
@@ -24,9 +24,9 @@ export default function SellerDashboard() {
   });
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isSeller && !isAdmin) return;
     fetchDashboardData();
-  }, [isAdmin]);
+  }, [isSeller, isAdmin]);
 
   const fetchDashboardData = async () => {
     try {
@@ -43,8 +43,8 @@ export default function SellerDashboard() {
 
       // Calculate stats
       const totalProducts = productsData.length;
-      const totalOrders = ordersResponse.data.length;
-      const totalEarnings = ordersResponse.data.reduce((sum, order) => {
+      const totalOrders = orders.length;
+      const totalEarnings = orders.reduce((sum, order) => {
         return sum + order.totalAmount;
       }, 0);
 

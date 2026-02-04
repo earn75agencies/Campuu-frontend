@@ -88,16 +88,16 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product) => {
     setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.productId === product._id);
+      const existingItem = prev.find((item) => (item.productId === product._id) || (item._id === product._id));
       let newCart;
       if (existingItem) {
         newCart = prev.map((item) =>
-          item.productId === product._id
+          (item.productId === product._id) || (item._id === product._id)
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        newCart = [...prev, { productId: product._id, quantity: 1, ...product }];
+        newCart = [...prev, { _id: product._id, productId: product._id, quantity: 1, ...product }];
       }
 
       // Save to localStorage and server
@@ -111,7 +111,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = (productId) => {
     setCartItems((prev) => {
-      const newCart = prev.filter((item) => item.productId !== productId);
+      const newCart = prev.filter((item) => item.productId !== productId && item._id !== productId);
       localStorage.setItem('cartItems', JSON.stringify(newCart));
       saveCartToServer();
       return newCart;
@@ -122,7 +122,7 @@ export const CartProvider = ({ children }) => {
     if (quantity < 1) return;
     setCartItems((prev) => {
       const newCart = prev.map((item) =>
-        item.productId === productId ? { ...item, quantity } : item
+        (item.productId === productId || item._id === productId) ? { ...item, quantity } : item
       );
       localStorage.setItem('cartItems', JSON.stringify(newCart));
       saveCartToServer();

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function SellerAddProduct() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isSeller } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
