@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await api.get('/users/me');
+        const response = await api.get('/auth/me');
         const updatedUser = response.data.user;
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));

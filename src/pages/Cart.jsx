@@ -67,7 +67,7 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="lg:col-span-2">
             {cartItems.map((item) => (
-              <div key={item.productId} className="bg-white rounded-lg shadow-md p-6 mb-4">
+              <div key={item._id || item.productId} className="bg-white rounded-lg shadow-md p-6 mb-4">
                 <div className="flex items-center space-x-4">
                   {item.images && item.images[0] && (
                     <img
@@ -82,21 +82,21 @@ export default function Cart() {
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
-                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                      onClick={() => updateQuantity(item._id || item.productId, item.quantity - 1)}
                       className="px-3 py-1 border rounded hover:bg-gray-100"
                     >
                       -
                     </button>
                     <span className="px-3 py-1">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                      onClick={() => updateQuantity(item._id || item.productId, item.quantity + 1)}
                       className="px-3 py-1 border rounded hover:bg-gray-100"
                     >
                       +
                     </button>
                   </div>
                   <button
-                    onClick={() => removeFromCart(item.productId)}
+                    onClick={() => removeFromCart(item._id || item.productId)}
                     className="text-red-600 hover:text-red-800"
                   >
                     Remove

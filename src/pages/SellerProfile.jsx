@@ -76,7 +76,7 @@ export default function SellerProfile() {
   }
 
   const { seller, stats, products } = sellerData;
-  const isOwnProfile = currentUser?.id === seller.id;
+  const isOwnProfile = currentUser?.id === seller.id || currentUser?._id === seller._id;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
