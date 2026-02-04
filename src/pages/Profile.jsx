@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [balance, setBalance] = useState(null);
@@ -50,21 +51,29 @@ export default function Profile() {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex items-center space-x-6">
-            <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-              {user?.name?.charAt(0) || 'U'}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-6">
+              <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{user?.name || 'User'}</h2>
+                <p className="text-gray-600">{user?.email}</p>
+                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
+                  user?.role === 'admin' ? 'bg-red-100 text-red-800' :
+                  user?.role === 'seller' ? 'bg-blue-100 text-blue-800' :
+                  'bg-green-100 text-green-800'
+                }`}>
+                  {user?.role || 'Student'}
+                </span>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{user?.name || 'User'}</h2>
-              <p className="text-gray-600">{user?.email}</p>
-              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
-                user?.role === 'admin' ? 'bg-red-100 text-red-800' :
-                user?.role === 'seller' ? 'bg-blue-100 text-blue-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                {user?.role || 'Student'}
-              </span>
-            </div>
+            <button
+              onClick={() => navigate('/profile/edit')}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Edit Profile
+            </button>
           </div>
         </div>
 

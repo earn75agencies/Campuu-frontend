@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
 
 export default function MyOrders() {
   const { user } = useAuth();
@@ -107,6 +107,15 @@ export default function MyOrders() {
                     </Link>
                   </div>
                 )}
+
+                <div className="mt-4 flex gap-2">
+                  <Link
+                    to={`/orders/${order._id}/tracking`}
+                    className="flex-1 text-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-medium"
+                  >
+                    Track Order
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

@@ -1,14 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShoppingCart, User, LogOut, LayoutDashboard, Heart, MessageSquare, Bell } from 'lucide-react';
+import NotificationBell from './NotificationBell';
+import api from '../api/axios';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated, isAdmin, isSeller } = useAuth();
   const { cartCount } = useCart();
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchWishlistCount();
+      fetchUnreadCount();
+      // Poll for unread messages every 30 seconds
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
+
+  const fetchWishlistCount = async () => {
+    try {
+      const response = await api.get('/wishlist');
+      setWishlistCount(response.data.products?.length || 0);
+    } catch (err) {
+      console.error('Error fetching wishlist count:', err);
+    }
+  };
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get('/messages/unread');
+      setUnreadCount(response.data.unreadCount || 0);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -33,6 +65,28 @@ export default function Navbar() {
             <Link to="/products" className="text-gray-300 hover:text-white transition">
               Products
             </Link>
+            <Link to="/categories" className="text-gray-300 hover:text-white transition">
+              Categories
+            </Link>
+            <Link to="/search" className="text-gray-300 hover:text-white transition">
+              Advanced Search
+            </Link>
+            {isAuthenticated && (
+              <>
+                <NotificationBell />
+                <Link to="/messages" className="text-gray-300 hover:text-white transition relative">
+                  <MessageSquare className="w-5 h-5" />
+                </Link>
+                <Link to="/wishlist" className="text-gray-300 hover:text-white transition relative">
+                  <Heart className="w-5 h-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+              </>
+            )}
             <Link to="/cart" className="text-gray-300 hover:text-white transition relative">
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
@@ -126,6 +180,28 @@ export default function Navbar() {
             <Link to="/products" className="text-gray-300 hover:text-white transition">
               Products
             </Link>
+            <Link to="/categories" className="text-gray-300 hover:text-white transition">
+              Categories
+            </Link>
+            <Link to="/search" className="text-gray-300 hover:text-white transition">
+              Advanced Search
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link to="/notifications" className="text-gray-300 hover:text-white transition flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  Notifications
+                </Link>
+                <Link to="/messages" className="text-gray-300 hover:text-white transition flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  Messages
+                </Link>
+                <Link to="/wishlist" className="text-gray-300 hover:text-white transition flex items-center gap-2">
+                  <Heart className="w-5 h-5" />
+                  Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
+                </Link>
+              </>
+            )}
             <Link to="/cart" className="text-gray-300 hover:text-white transition">
               Cart
             </Link>

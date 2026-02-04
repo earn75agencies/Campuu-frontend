@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import OrderStatusUpdate from '../components/OrderStatusUpdate';
 
 export default function SellerOrders() {
-  const { user, isAdmin } = useAuth();
+  const { user, isSeller } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isSeller) return;
     fetchOrders();
-  }, [isAdmin]);
+  }, [isSeller]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/orders/my-orders');
+      const response = await api.get('/orders');
       setOrders(response.data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -99,6 +100,10 @@ export default function SellerOrders() {
                   </Link>
                 </div>
               )}
+
+              <div className="mt-4">
+                <OrderStatusUpdate order={order} onUpdate={fetchOrders} />
+              </div>
             </div>
           ))}
         </div>

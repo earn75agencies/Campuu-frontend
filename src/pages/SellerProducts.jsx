@@ -4,20 +4,24 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function SellerProducts() {
-  const { user, isAdmin } = useAuth();
+  const { user, isSeller } = useAuth();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isSeller) return;
     fetchProducts();
-  }, [isAdmin]);
+  }, [isSeller]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const response = await api.get('/products');
-      setProducts(response.data);
+      // Filter to show only products owned by this seller
+      const sellerProducts = response.data.filter(
+        product => product.sellerId === user?.id || product.sellerId?._id === user?.id
+      );
+      setProducts(sellerProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -103,6 +107,12 @@ export default function SellerProducts() {
                             className="text-blue-600 hover:text-blue-800"
                           >
                             View
+                          </Link>
+                          <Link
+                            to={`/seller/products/edit/${product._id}`}
+                            className="text-green-600 hover:text-green-800"
+                          >
+                            Edit
                           </Link>
                           <button
                             onClick={() => handleDeleteProduct(product._id)}

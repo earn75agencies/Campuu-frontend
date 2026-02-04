@@ -4,13 +4,22 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // Pages
 import Home from './pages/Home';
 import Products from './pages/Products';
+import AdvancedSearch from './pages/AdvancedSearch';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MyOrders from './pages/MyOrders';
+import OrderTracking from './pages/OrderTracking';
 import Profile from './pages/Profile';
+import Wishlist from './pages/Wishlist';
+import SellerProfile from './pages/SellerProfile';
+import Categories from './pages/Categories';
+import CategoryProducts from './pages/CategoryProducts';
+import Messages from './pages/Messages';
+import Notifications from './pages/Notifications';
+import EditProfile from './pages/EditProfile';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 import PaymentRedirect from './pages/PaymentRedirect';
@@ -22,6 +31,7 @@ import SellerDashboard from './pages/SellerDashboard';
 import SellerOrders from './pages/SellerOrders';
 import SellerProducts from './pages/SellerProducts';
 import SellerAddProduct from './pages/SellerAddProduct';
+import EditProduct from './pages/EditProduct';
 
 // Admin Pages
 import AdminDashboard from './pages/AdminDashboard';
@@ -47,13 +57,23 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/search" element={<AdvancedSearch />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/category/:categoryName" element={<CategoryProducts />} />
               <Route path="/products/:id" element={<ProductDetails />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+              <Route path="/orders/:id/tracking" element={<ProtectedRoute><OrderTracking /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/messages/:conversationId" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+              <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/seller/:id" element={<SellerProfile />} />
+              <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failed" element={<PaymentFailed />} />
               <Route path="/payment/redirect/:orderId" element={<PaymentRedirect />} />
@@ -90,6 +110,14 @@ function App() {
                 element={
                   <SellerRoute>
                     <SellerAddProduct />
+                  </SellerRoute>
+                }
+              />
+              <Route
+                path="/seller/products/edit/:id"
+                element={
+                  <SellerRoute>
+                    <EditProduct />
                   </SellerRoute>
                 }
               />
