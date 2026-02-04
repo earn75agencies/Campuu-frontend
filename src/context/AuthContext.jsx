@@ -38,6 +38,22 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await api.post('/auth/register', userData);
+
+      // After successful registration, automatically log in
+      if (response.data.user) {
+        const loginResponse = await api.post('/auth/login', {
+          email: userData.email,
+          password: userData.password
+        });
+
+        const { token, user } = loginResponse.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        setUser(user);
+
+        return { ...response.data, token, user };
+      }
+
       return response.data;
     } catch (error) {
       console.error('Registration API error:', error.response?.data);

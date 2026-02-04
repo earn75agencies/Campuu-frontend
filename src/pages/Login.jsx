@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -42,7 +43,7 @@ export default function Login() {
       }
 
       // Login successful - redirect to home
-      window.location.href = '/';
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       // Handle axios error with response data

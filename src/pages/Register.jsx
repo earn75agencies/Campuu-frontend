@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Register() {
   const { register } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -92,8 +93,8 @@ export default function Register() {
         return;
       }
 
-      // Registration successful - redirect to login
-      window.location.href = '/login?registered=true';
+      // Registration successful - user is now logged in, redirect to home
+      navigate('/');
     } catch (error) {
       console.error('Registration error:', error);
       // Handle axios error with response data
