@@ -18,7 +18,8 @@ export default function SellerProducts() {
       setLoading(true);
       const response = await api.get('/products');
       // Filter to show only products owned by this seller
-      const sellerProducts = response.data.filter(
+      const productsData = response.data.products || response.data;
+      const sellerProducts = productsData.filter(
         product => product.sellerId === user?.id || product.sellerId?._id === user?.id
       );
       setProducts(sellerProducts);

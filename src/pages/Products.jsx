@@ -21,7 +21,7 @@ export default function Products() {
         url += `?category=${categoryFilter}`;
       }
       const response = await api.get(url);
-      setProducts(response.data);
+      setProducts(response.data.products || response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {

@@ -23,11 +23,12 @@ export default function ReviewsList({ productId, productRating, reviewCount }) {
     try {
       setLoading(true);
       const response = await api.get(`/reviews/product/${productId}?page=${page}&limit=5`);
-      setReviews(response.data.reviews);
-      setTotalPages(response.data.pagination.totalPages);
+      setReviews(Array.isArray(response.data.reviews) ? response.data.reviews : []);
+      setTotalPages(response.data.pagination?.totalPages || 1);
     } catch (err) {
       console.error('Error fetching reviews:', err);
       setError('Failed to load reviews');
+      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -97,10 +98,10 @@ export default function ReviewsList({ productId, productRating, reviewCount }) {
           </div>
 
           {/* Rating Distribution */}
-          {reviewCount > 0 && (
+          {reviewCount > 0 && Array.isArray(reviews) && (
             <div className="flex-1">
               {[5, 4, 3, 2, 1].map((star) => {
-                const count = reviews.filter(r => Math.round(r.rating) === star).length;
+                const count = reviews.filter(r => r && Math.round(r.rating) === star).length;
                 const percentage = reviewCount > 0 ? (count / reviewCount) * 100 : 0;
                 return (
                   <div key={star} className="flex items-center gap-2 mb-1">
@@ -145,7 +146,7 @@ export default function ReviewsList({ productId, productRating, reviewCount }) {
           </div>
         ) : error ? (
           <div className="text-center py-8 text-red-600">{error}</div>
-        ) : reviews.length === 0 ? (
+        ) : !Array.isArray(reviews) || reviews.length === 0 ? (
           <div className="text-center py-8 bg-gray-50 rounded-lg">
             <p className="text-gray-600">No reviews yet. Be the first to review!</p>
           </div>

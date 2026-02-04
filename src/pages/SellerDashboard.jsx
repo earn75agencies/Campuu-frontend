@@ -34,14 +34,15 @@ export default function SellerDashboard() {
 
       // Fetch products
       const productsResponse = await api.get('/products');
-      setProducts(productsResponse.data);
+      const productsData = productsResponse.data.products || productsResponse.data;
+      setProducts(productsData);
 
       // Fetch orders
       const ordersResponse = await api.get('/orders/my-orders');
       setOrders(ordersResponse.data);
 
       // Calculate stats
-      const totalProducts = productsResponse.data.length;
+      const totalProducts = productsData.length;
       const totalOrders = ordersResponse.data.length;
       const totalEarnings = ordersResponse.data.reduce((sum, order) => {
         return sum + order.totalAmount;

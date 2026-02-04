@@ -31,7 +31,8 @@ export default function AdminDashboard() {
 
       // Fetch products
       const productsResponse = await api.get('/products');
-      setProducts(productsResponse.data);
+      const productsData = productsResponse.data.products || productsResponse.data;
+      setProducts(productsData);
 
       // Fetch orders
       const ordersResponse = await api.get('/orders');
@@ -39,7 +40,7 @@ export default function AdminDashboard() {
 
       // Calculate stats
       const totalUsers = usersResponse.data.length;
-      const totalProducts = productsResponse.data.length;
+      const totalProducts = productsData.length;
       const totalOrders = ordersResponse.data.length;
       const totalRevenue = ordersResponse.data
         .filter(order => order.paymentStatus === 'paid')
