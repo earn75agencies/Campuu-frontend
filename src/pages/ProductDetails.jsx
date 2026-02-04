@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import api from '../api/axios';
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetchProduct();
@@ -20,6 +22,12 @@ export default function ProductDetails() {
       console.error('Error fetching product:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
     }
   };
 
@@ -72,7 +80,7 @@ export default function ProductDetails() {
 
               <div className="flex space-x-4">
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={handleAddToCart}
                   disabled={!product.isAvailable || product.stock <= 0}
                   className="flex-1 py-3 px-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition text-white font-medium"
                 >
@@ -88,9 +96,4 @@ export default function ProductDetails() {
       </div>
     </div>
   );
-}
-
-function addToCart(product) {
-  const { addToCart } = useCart();
-  addToCart(product);
 }

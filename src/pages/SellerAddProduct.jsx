@@ -28,29 +28,33 @@ export default function SellerAddProduct() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const uploadPromises = Array.from(files).map(async (file) => {
-      try {
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
+        try {
+          const response = await api.post('/upload/image', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          return response.data.url;
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          return null;
+        }
+      });
 
-        const data = await response.json();
-        return data.url;
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        return null;
-      }
-    });
-
-    const urls = await Promise.all(uploadPromises);
-    setFormData({
-      ...formData,
-      images: urls.filter(Boolean)
-    });
+      const urls = await Promise.all(uploadPromises);
+      setFormData({
+        ...formData,
+        images: urls.filter(Boolean)
+      });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      setError('Failed to upload images. Please try again.');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -66,11 +70,25 @@ export default function SellerAddProduct() {
         images: formData.images
       };
 
-      await api.post('/products', productData);
+      const response = await api.post('/products', productData);
+
+      // Check for errors in response
+      if (response.data.error) {
+        setError(response.data.error);
+        return;
+      }
+
+      // Product created successfully - redirect to products list
       window.location.href = '/seller/products';
     } catch (error) {
       console.error('Error adding product:', error);
-      setError('Failed to add product. Please try again.');
+      // Handle axios error with response data
+      if (error.response?.data) {
+        const { error: err } = error.response.data;
+        setError(err || 'Failed to add product. Please try again.');
+      } else {
+        setError('Failed to add product. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

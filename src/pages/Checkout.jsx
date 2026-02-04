@@ -178,8 +178,8 @@ export default function Checkout() {
               </div>
 
               <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="font-medium text-blue-900 mb-2">Payment Method</h3>
-                <p className="text-blue-700">M-Pesa (Safaricom Daraja)</p>
+                <h3 className="font-medium text-blue-900 mb-2">Payment Methods</h3>
+                <p className="text-blue-700 text-sm">M-Pesa (Safaricom), Card, Bank Transfer available on next page</p>
               </div>
             </div>
           </div>

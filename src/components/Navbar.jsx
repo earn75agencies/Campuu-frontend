@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { ShoppingCart, User, LogOut, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout, isAuthenticated, isAdmin, isSeller } = useAuth();
+  const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -33,9 +35,11 @@ export default function Navbar() {
             </Link>
             <Link to="/cart" className="text-gray-300 hover:text-white transition relative">
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {user?.cartCount || 0}
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
 

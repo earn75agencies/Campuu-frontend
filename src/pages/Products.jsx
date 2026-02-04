@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import ProductCard from '../components/ProductCard';
 import api from '../api/axios';
 
 export default function Products() {

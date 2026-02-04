@@ -22,19 +22,23 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product) => {
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item.productId === product._id);
+      let newCart;
       if (existingItem) {
-        return prev.map((item) =>
+        newCart = prev.map((item) =>
           item.productId === product._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
+      } else {
+        newCart = [...prev, { productId: product._id, quantity: 1, ...product }];
       }
-      return [...prev, { productId: product._id, quantity: 1, ...product }];
-    });
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    }
+      // Save to localStorage after state update
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('cartItems', JSON.stringify(newCart));
+      }
+      return newCart;
+    });
   };
 
   const removeFromCart = (productId) => {

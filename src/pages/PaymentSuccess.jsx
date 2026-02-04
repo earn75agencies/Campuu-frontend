@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -7,22 +7,37 @@ import { Link } from 'react-router-dom';
 export default function PaymentSuccess() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState('pending');
+  const [paymentDetails, setPaymentDetails] = useState(null);
 
   useEffect(() => {
-    fetchOrder();
-    const status = searchParams.get('status');
-    const txRef = searchParams.get('tx_ref');
-    
-    if (status === 'successful') {
+    // Check if payment details are passed from M-Pesa flow
+    if (location.state?.paymentMethod === 'M-Pesa') {
+      setPaymentDetails({
+        method: 'M-Pesa',
+        receiptNumber: location.state.receiptNumber,
+        amount: location.state.amount,
+        orderId: location.state.orderId
+      });
       setPaymentStatus('successful');
-      verifyPayment(txRef);
-    } else if (status === 'cancelled') {
-      setPaymentStatus('cancelled');
+      fetchOrder(location.state.orderId);
+    } else {
+      // Flutterwave flow
+      fetchOrder();
+      const status = searchParams.get('status');
+      const txRef = searchParams.get('tx_ref');
+
+      if (status === 'successful') {
+        setPaymentStatus('successful');
+        verifyPayment(txRef);
+      } else if (status === 'cancelled') {
+        setPaymentStatus('cancelled');
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, location.state]);
 
   const verifyPayment = async (txRef) => {
     try {
@@ -37,12 +52,17 @@ export default function PaymentSuccess() {
     }
   };
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (orderId = null) => {
     try {
-      const response = await api.get('/orders/my-orders');
-      const recentOrder = response.data[response.data.length - 1];
-      if (recentOrder && recentOrder.paymentStatus === 'paid') {
-        setOrder(recentOrder);
+      if (orderId) {
+        const response = await api.get(`/orders/${orderId}`);
+        setOrder(response.data);
+      } else {
+        const response = await api.get('/orders/my-orders');
+        const recentOrder = response.data[response.data.length - 1];
+        if (recentOrder && recentOrder.paymentStatus === 'paid') {
+          setOrder(recentOrder);
+        }
       }
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -100,24 +120,38 @@ export default function PaymentSuccess() {
             )}
           </div>
 
-          {paymentStatus === 'successful' && order && (
+          {paymentStatus === 'successful' && (order || paymentDetails) && (
             <div className="space-y-4 mb-8">
               <div className="flex justify-between">
-                <span className="text-gray-600">Order ID:</span>
-                <span className="font-medium">{order._id}</span>
+                <span className="text-gray-600">Payment Method:</span>
+                <span className="font-medium">{paymentDetails?.method || order?.paymentMethod || 'Card'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Payment Status:</span>
-                <span className="font-medium text-green-600">Paid</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Order Status:</span>
-                <span className="font-medium">{order.orderStatus}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Amount:</span>
-                <span className="font-bold">KES {order.totalAmount}</span>
-              </div>
+              {paymentDetails?.receiptNumber && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">M-Pesa Receipt:</span>
+                  <span className="font-medium text-green-600">{paymentDetails.receiptNumber}</span>
+                </div>
+              )}
+              {order && (
+                <>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Order ID:</span>
+                    <span className="font-medium">{order._id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Payment Status:</span>
+                    <span className="font-medium text-green-600">Paid</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Order Status:</span>
+                    <span className="font-medium">{order.orderStatus}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Amount:</span>
+                    <span className="font-bold">KES {order.totalAmount || paymentDetails?.amount}</span>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

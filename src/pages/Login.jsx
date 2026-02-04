@@ -27,11 +27,38 @@ export default function Login() {
 
     try {
       const response = await login(formData);
+
+      // Check for errors in response
       if (response.error) {
         setError(response.error);
+        return;
       }
+
+      // Check for validation errors in response
+      if (response.errors && response.errors.length > 0) {
+        const errorMessages = response.errors.map(err => err.msg).join(', ');
+        setError(errorMessages);
+        return;
+      }
+
+      // Login successful - redirect to home
+      window.location.href = '/';
     } catch (error) {
-      setError('Invalid credentials. Please try again.');
+      console.error('Login error:', error);
+      // Handle axios error with response data
+      if (error.response?.data) {
+        const { error: err, errors } = error.response.data;
+        if (errors) {
+          const errorMessages = errors.map(e => e.msg).join(', ');
+          setError(errorMessages);
+        } else if (err) {
+          setError(err);
+        } else {
+          setError('Invalid credentials. Please try again.');
+        }
+      } else {
+        setError('Invalid credentials. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

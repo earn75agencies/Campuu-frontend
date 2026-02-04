@@ -36,19 +36,29 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
+    try {
+      const response = await api.post('/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      console.error('Registration API error:', error.response?.data);
+      throw error;
+    }
   };
 
   const login = async (credentials) => {
-    const response = await api.post('/auth/login', credentials);
-    const { token, user } = response.data;
-    
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    setUser(user);
-    
-    return response.data;
+    try {
+      const response = await api.post('/auth/login', credentials);
+      const { token, user } = response.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+
+      return response.data;
+    } catch (error) {
+      console.error('Login API error:', error.response?.data);
+      throw error;
+    }
   };
 
   const logout = () => {
